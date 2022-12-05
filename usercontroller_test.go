@@ -11,74 +11,74 @@ import (
 
 func TestMySQLController_CreateUser(t *testing.T) {
 	c := createTestController()
-	err := c.CreateUser("test1", "password")
+	err := c.CreateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
-	err = openMySQL("test1", "password", "")
+	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)
 
-	err = c.CreateUser("test1", "password")
+	err = c.CreateUser(testUser, testPassword)
 	assert.Error(t, err)
 	assert.Equal(t, ErrUserExists, err)
 
-	err = c.CreateUser("", "password")
+	err = c.CreateUser("", "")
 	assert.Error(t, err)
 
 	for _, name := range baseUsers {
-		err = c.CreateUser(name, "password")
+		err = c.CreateUser(name, testPassword)
 		assert.Error(t, err)
 	}
 
-	err = c.DeleteUser("test1")
+	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 }
 
 func TestMySQLController_UpdateUser(t *testing.T) {
 	c := createTestController()
-	err := c.UpdateUser("test1", "password")
+	err := c.UpdateUser(testUser, testPassword)
 	assert.Error(t, err)
 	assert.Equal(t, ErrUserDoesNotExist, err)
 
-	err = c.CreateUser("test1", "password")
+	err = c.CreateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
-	err = openMySQL("test1", "password", "")
+	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)
 
-	err = c.UpdateUser("test1", "password")
+	err = c.UpdateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
-	err = openMySQL("test1", "password", "")
+	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)
 
-	err = c.UpdateUser("", "password")
+	err = c.UpdateUser("", testPassword)
 	assert.Error(t, err)
 
-	err = c.UpdateUser("test1", "")
+	err = c.UpdateUser(testUser, "")
 	assert.Error(t, err)
 
 	for _, name := range baseUsers {
-		err = c.UpdateUser(name, "password")
+		err = c.UpdateUser(name, testPassword)
 		assert.Error(t, err)
 	}
 
-	err = c.DeleteUser("test1")
+	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 }
 
 func TestMySQLController_DeleteUser(t *testing.T) {
 	c := createTestController()
-	err := c.DeleteUser("test1")
+	err := c.DeleteUser(testUser)
 	assert.Error(t, err)
 	assert.Equal(t, ErrUserDoesNotExist, err)
 
-	err = c.CreateUser("test1", "password")
+	err = c.CreateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
-	err = c.DeleteUser("test1")
+	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 
-	err = openMySQL("test1", "password", "")
+	err = openMySQL(testUser, testPassword, "")
 	assert.Error(t, err)
 
 	err = c.DeleteUser("")
@@ -96,14 +96,14 @@ func TestMySQLController_ListUsers(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0, len(names))
 
-	err = c.CreateUser("test1", "password")
+	err = c.CreateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
 	names, err = c.ListUsers()
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(names))
 
-	err = c.DeleteUser("test1")
+	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 }
 
@@ -124,17 +124,17 @@ func TestMySQLController_UserExists(t *testing.T) {
 	_, err := c.UserExists("")
 	assert.Error(t, err)
 
-	exists, err := c.UserExists("test1")
+	exists, err := c.UserExists(testUser)
 	assert.NoError(t, err)
 	assert.False(t, exists)
 
-	err = c.CreateUser("test1", "password")
+	err = c.CreateUser(testUser, testPassword)
 	assert.NoError(t, err)
 
-	exists, err = c.UserExists("test1")
+	exists, err = c.UserExists(testUser)
 	assert.NoError(t, err)
 	assert.True(t, exists)
 
-	err = c.DeleteUser("test1")
+	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 }

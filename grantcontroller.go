@@ -40,7 +40,7 @@ func (c *MySQLController) GrantAll(dbName, username string) error {
 		return ErrDBDoesNotExist
 	}
 
-	_, err = c.db.Exec("GRANT ALL PRIVILEGES ON " + dbName + ".* TO '" + username + "'@'%'")
+	_, err = c.db.Exec("GRANT ALL PRIVILEGES ON `" + dbName + "`.* TO '" + username + "'@'%'")
 	if err != nil {
 		return fmt.Errorf("error granting privileges: %s", err)
 	}
@@ -59,7 +59,7 @@ func (c *MySQLController) RevokeAll(dbName, username string) error {
 		return fmt.Errorf("error validating username: %s", err)
 	}
 
-	_, err = c.db.Exec("REVOKE ALL PRIVILEGES ON " + dbName + ".* FROM '" + username + "'@'%'")
+	_, err = c.db.Exec("REVOKE ALL PRIVILEGES ON `" + dbName + "`.* FROM '" + username + "'@'%'")
 	if err != nil {
 		return fmt.Errorf("error revoking privileges: %s", err)
 	}
@@ -83,7 +83,7 @@ func (c *MySQLController) Grant(grantName, dbName, username string) error {
 		return fmt.Errorf("error validating grant: %s", err)
 	}
 
-	_, err = c.db.Exec("GRANT " + grantName + " ON " + dbName + ".* TO '" + username + "'@'%'")
+	_, err = c.db.Exec("GRANT " + grantName + " ON `" + dbName + "`.* TO '" + username + "'@'%'")
 	if err != nil {
 		return fmt.Errorf("error granting privileges: %s", err)
 	}

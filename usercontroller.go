@@ -27,7 +27,7 @@ func (c *MySQLController) CreateUser(username, password string) error {
 		return err
 	}
 
-	_, err = c.db.Exec("CREATE USER " + username + " IDENTIFIED BY '" + password + "'")
+	_, err = c.db.Exec("CREATE USER `" + username + "` IDENTIFIED BY '" + password + "'")
 	if err != nil {
 		if err.Error() == "Error 1396: Operation CREATE USER failed for '"+username+"'@'%'" {
 			return ErrUserExists
@@ -47,7 +47,7 @@ func (c *MySQLController) UpdateUser(username, password string) error {
 		return err
 	}
 
-	_, err = c.db.Exec("SET PASSWORD FOR " + username + " = '" + password + "'")
+	_, err = c.db.Exec("SET PASSWORD FOR `" + username + "` = '" + password + "'")
 	if err != nil {
 		if err.Error() == "Error 1133: Can't find any matching row in the user table" {
 			return ErrUserDoesNotExist
@@ -63,7 +63,7 @@ func (c *MySQLController) DeleteUser(username string) error {
 		return err
 	}
 
-	_, err = c.db.Exec("DROP USER " + username)
+	_, err = c.db.Exec(fmt.Sprintf("DROP USER `%s`", username))
 	if err != nil {
 		if err.Error() == "Error 1396: Operation DROP USER failed for '"+username+"'@'%'" {
 			return ErrUserDoesNotExist

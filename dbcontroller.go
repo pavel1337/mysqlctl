@@ -45,7 +45,7 @@ func (c *MySQLController) CreateDatabase(dbName string) error {
 		return err
 	}
 
-	_, err = c.db.Exec("CREATE DATABASE " + dbName)
+	_, err = c.db.Exec(fmt.Sprintf("CREATE DATABASE `%s`", dbName))
 	if err != nil {
 		if err.Error() == "Error 1007: Can't create database '"+dbName+"'; database exists" {
 			return ErrDBExists
@@ -60,7 +60,7 @@ func (c *MySQLController) DeleteDatabase(dbName string) error {
 		return err
 	}
 
-	_, err = c.db.Exec("DROP DATABASE " + dbName)
+	_, err = c.db.Exec(fmt.Sprintf("DROP DATABASE `%s`", dbName))
 	if err != nil {
 		if err.Error() == "Error 1008: Can't drop database '"+dbName+"'; database doesn't exist" {
 			return ErrDBDoesNotExist
