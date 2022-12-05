@@ -1,4 +1,4 @@
-module mysqlctl
+module github.com/pavel1337/mysqlctl
 
 go 1.19
 
