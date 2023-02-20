@@ -7,6 +7,7 @@ type DBController interface {
 	DeleteDatabase(dbName string) error
 	ListDatabases() ([]string, error)
 	DatabaseExists(dbName string) (bool, error)
+	Size(dbName string) (int, error)
 }
 
 type GrantController interface {

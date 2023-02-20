@@ -8,10 +8,16 @@ import (
 )
 
 type DBController interface {
+	// CreateDatabase creates a database.
 	CreateDatabase(dbName string) error
+	// DeleteDatabase deletes a database.
 	DeleteDatabase(dbName string) error
+	// ListDatabases returns a list of databases.
 	ListDatabases() ([]string, error)
+	// DatabaseExists returns true if the database exists.
 	DatabaseExists(dbName string) (bool, error)
+	// Size returns the size of the database in Bytes.
+	Size(dbName string) (int, error)
 }
 
 var _ DBController = &MySQLController{}
@@ -100,6 +106,25 @@ func (c *MySQLController) DatabaseExists(dbName string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// Size returns the size of the database in Bytes.
+func (c *MySQLController) Size(dbName string) (int, error) {
+	err := validateDBName(dbName)
+	if err != nil {
+		return 0, err
+	}
+
+	var size *int
+	err = c.db.QueryRow("SELECT SUM(data_length + index_length) FROM information_schema.tables WHERE table_schema = ?", dbName).Scan(&size)
+	if err != nil {
+		return 0, err
+	}
+	if size == nil {
+		return 0, nil
+	}
+
+	return *size, nil
 }
 
 func filterBaseDatabases(dbs []string) []string {
