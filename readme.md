@@ -12,8 +12,10 @@ type DBController interface {
 
 type GrantController interface {
 	Grant(grantName, dbName, username string) error
+	GrantExists(grantName, dbName, username string) (bool, error)
 	GrantAll(dbName, username string) error
 	RevokeAll(dbName, username string) error
+	Revoke(grantName, dbName, username string) error
 }
 
 type UserController interface {
@@ -23,4 +25,26 @@ type UserController interface {
 	ListUsers() ([]string, error)
 	UserExists(username string) (bool, error)
 }
+```
+
+List of supported GRANTS:
+```go
+ALTER
+ALTER ROUTINE
+CREATE
+CREATE ROUTINE
+CREATE TEMPORARY TABLES
+CREATE VIEW
+DELETE
+DROP
+EVENT
+EXECUTE
+INDEX
+INSERT
+LOCK TABLES
+REFERENCES
+SELECT
+SHOW VIEW
+TRIGGER
+UPDATE
 ```
