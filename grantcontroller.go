@@ -17,7 +17,7 @@ type GrantController interface {
 var _ GrantController = &MySQLController{}
 
 var (
-	ErrInvalidGrant = fmt.Errorf("invalidwgrant")
+	ErrInvalidGrant = fmt.Errorf("invalid grant")
 )
 
 // GrantAll grants all privileges for the given database and user
