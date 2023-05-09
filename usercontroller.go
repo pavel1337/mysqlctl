@@ -10,6 +10,9 @@ type UserController interface {
 	DeleteUser(username string) error
 	ListUsers() ([]string, error)
 	UserExists(username string) (bool, error)
+	CreateUserWithMaxConn(username, password string, maxConn int) error
+	UpdateUserMaxConn(username string, maxConn int) error
+	GetUserMaxConn(username string) (int, error)
 }
 
 var _ UserController = &MySQLController{}
@@ -31,6 +34,59 @@ func (c *MySQLController) CreateUser(username, password string) error {
 	if err != nil {
 		if err.Error() == "Error 1396: Operation CREATE USER failed for '"+username+"'@'%'" {
 			return ErrUserExists
+		}
+	}
+	return err
+}
+
+func (c *MySQLController) CreateUserWithMaxConn(username, password string, maxConn int) error {
+	err := validateUsername(username)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.db.Exec("CREATE USER `" + username + "` IDENTIFIED BY '" + password + "' WITH MAX_USER_CONNECTIONS " + fmt.Sprintf("%d", maxConn))
+	if err != nil {
+		if err.Error() == "Error 1396: Operation CREATE USER failed for '"+username+"'@'%'" {
+			return ErrUserExists
+		}
+	}
+	return err
+}
+
+func (c *MySQLController) GetUserMaxConn(username string) (int, error) {
+	err := validateUsername(username)
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := c.db.Query("SELECT MAX_USER_CONNECTIONS FROM mysql.user WHERE User = '" + username + "'")
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var maxConn int
+	for rows.Next() {
+		err = rows.Scan(&maxConn)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return maxConn, nil
+}
+
+func (c *MySQLController) UpdateUserMaxConn(username string, maxConn int) error {
+	err := validateUsername(username)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.db.Exec("ALTER USER `" + username + "` WITH MAX_USER_CONNECTIONS " + fmt.Sprintf("%d", maxConn))
+	if err != nil {
+		if err.Error() == "Error 1396: Operation ALTER USER failed for '"+username+"'@'%'" {
+			return ErrUserDoesNotExist
 		}
 	}
 	return err

@@ -138,3 +138,26 @@ func TestMySQLController_UserExists(t *testing.T) {
 	err = c.DeleteUser(testUser)
 	assert.NoError(t, err)
 }
+
+func TestMySQLController_UsersMaxConnHandling(t *testing.T) {
+	c := createTestController()
+	err := c.CreateUserWithMaxConn(testUser, testPassword, 1)
+	assert.NoError(t, err)
+
+	err = openMySQL(testUser, testPassword, "")
+	assert.NoError(t, err)
+
+	err = c.CreateUserWithMaxConn(testUser, testPassword, 1)
+	assert.Error(t, err)
+
+	maxConn, err := c.GetUserMaxConn(testUser)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, maxConn)
+
+	err = c.UpdateUserMaxConn(testUser, 2)
+	assert.NoError(t, err)
+
+	maxConn, err = c.GetUserMaxConn(testUser)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, maxConn)
+}
