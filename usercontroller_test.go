@@ -33,9 +33,9 @@ func TestMySQLController_CreateUser(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestMySQLController_UpdateUser(t *testing.T) {
+func TestMySQLController_UpdateUserPassword(t *testing.T) {
 	c := createTestController()
-	err := c.UpdateUser(testUser, testPassword)
+	err := c.UpdateUserPassword(testUser, testPassword)
 	assert.Error(t, err)
 	assert.Equal(t, ErrUserDoesNotExist, err)
 
@@ -45,20 +45,20 @@ func TestMySQLController_UpdateUser(t *testing.T) {
 	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)
 
-	err = c.UpdateUser(testUser, testPassword)
+	err = c.UpdateUserPassword(testUser, testPassword)
 	assert.NoError(t, err)
 
 	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)
 
-	err = c.UpdateUser("", testPassword)
+	err = c.UpdateUserPassword("", testPassword)
 	assert.Error(t, err)
 
-	err = c.UpdateUser(testUser, "")
+	err = c.UpdateUserPassword(testUser, "")
 	assert.Error(t, err)
 
 	for _, name := range baseUsers {
-		err = c.UpdateUser(name, testPassword)
+		err = c.UpdateUserPassword(name, testPassword)
 		assert.Error(t, err)
 	}
 

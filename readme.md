@@ -1,6 +1,8 @@
 ## Description
+
 mysqlctl is a helper package that implements various CRUD operations for MySQL.
 Currently, it implements these interfaces:
+
 ```go
 type DBController interface {
 	CreateDatabase(dbName string) error
@@ -20,14 +22,18 @@ type GrantController interface {
 
 type UserController interface {
 	CreateUser(username, password string) error
-	UpdateUser(username, password string) error
+	UpdateUserPassword(username, password string) error
 	DeleteUser(username string) error
 	ListUsers() ([]string, error)
 	UserExists(username string) (bool, error)
+	CreateUserWithMaxConn(username, password string, maxConn int) error
+	UpdateUserMaxConn(username string, maxConn int) error
+	GetUserMaxConn(username string) (int, error)
 }
 ```
 
 List of supported GRANTS:
+
 ```go
 ALTER
 ALTER ROUTINE

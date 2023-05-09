@@ -6,7 +6,7 @@ import (
 
 type UserController interface {
 	CreateUser(username, password string) error
-	UpdateUser(username, password string) error
+	UpdateUserPassword(username, password string) error
 	DeleteUser(username string) error
 	ListUsers() ([]string, error)
 	UserExists(username string) (bool, error)
@@ -92,7 +92,7 @@ func (c *MySQLController) UpdateUserMaxConn(username string, maxConn int) error 
 	return err
 }
 
-func (c *MySQLController) UpdateUser(username, password string) error {
+func (c *MySQLController) UpdateUserPassword(username, password string) error {
 	err := validateUsername(username)
 	if err != nil {
 		return err
