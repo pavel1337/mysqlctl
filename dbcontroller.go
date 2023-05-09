@@ -33,12 +33,31 @@ type MySQLController struct {
 	db *sql.DB
 }
 
-func NewMySQLController(connStr string) (*MySQLController, error) {
+// Option is a function that configures the MySQLController.
+type Option func(*MySQLController)
+
+// WithBadUsernames returns an Option that configures the MySQLController to
+// ignore the given usernames when listing databases.
+func WithBadUsernames(usernames []string) Option {
+	return func(c *MySQLController) {
+		baseUsers = append(baseUsers, usernames...)
+	}
+}
+
+// NewMySQLController creates a new MySQLController.
+func NewMySQLController(connStr string, opts ...Option) (*MySQLController, error) {
 	db, err := sql.Open("mysql", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database connection: %s", err)
 	}
-	return &MySQLController{db: db}, nil
+
+	c := &MySQLController{db: db}
+
+	for _, opt := range opts {
+		opt(c)
+	}
+
+	return c, nil
 }
 
 func (c *MySQLController) Close() error {

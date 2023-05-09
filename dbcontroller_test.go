@@ -22,7 +22,7 @@ func generateTestNames() []string {
 
 // createTestController creates a test controller.
 func createTestController() *MySQLController {
-	c, err := NewMySQLController("root:password@tcp(127.0.0.1:6603)/")
+	c, err := NewMySQLController("root:password@tcp(127.0.0.1:6603)/", WithBadUsernames([]string{"root", "moco"}))
 	if err != nil {
 		panic(err)
 	}
