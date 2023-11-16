@@ -2,6 +2,7 @@ package mysqlctl
 
 import (
 	"fmt"
+	"strings"
 )
 
 type UserController interface {
@@ -47,7 +48,7 @@ func (c *MySQLController) CreateUserWithMaxConn(username, password string, maxCo
 
 	_, err = c.db.Exec("CREATE USER `" + username + "` IDENTIFIED BY '" + password + "' WITH MAX_USER_CONNECTIONS " + fmt.Sprintf("%d", maxConn))
 	if err != nil {
-		if err.Error() == "Error 1396: Operation CREATE USER failed for '"+username+"'@'%'" {
+		if strings.Contains(err.Error(), "Operation CREATE USER failed for '"+username+"'@'%'") {
 			return ErrUserExists
 		}
 	}
