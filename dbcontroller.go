@@ -3,6 +3,7 @@ package mysqlctl
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -72,7 +73,7 @@ func (c *MySQLController) CreateDatabase(dbName string) error {
 
 	_, err = c.db.Exec(fmt.Sprintf("CREATE DATABASE `%s`", dbName))
 	if err != nil {
-		if err.Error() == "Error 1007: Can't create database '"+dbName+"'; database exists" {
+		if strings.Contains(err.Error(), "Can't create database '"+dbName+"'; database exists") {
 			return ErrDBExists
 		}
 	}
@@ -87,7 +88,7 @@ func (c *MySQLController) DeleteDatabase(dbName string) error {
 
 	_, err = c.db.Exec(fmt.Sprintf("DROP DATABASE `%s`", dbName))
 	if err != nil {
-		if err.Error() == "Error 1008: Can't drop database '"+dbName+"'; database doesn't exist" {
+		if strings.Contains(err.Error(), "Can't drop database '"+dbName+"'; database doesn't exist") {
 			return ErrDBDoesNotExist
 		}
 	}
