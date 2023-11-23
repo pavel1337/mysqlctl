@@ -3,6 +3,7 @@ package mysqlctl
 import (
 	"database/sql"
 	"fmt"
+	"math/rand"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -166,17 +167,31 @@ func createTestTable(db *sql.DB) error {
 	return err
 }
 
-// randomString generates a random string of a length n.
+// createTestTables creates n number of tables.
+func createTestTables(db *sql.DB, n int) error {
+	for i := 0; i < n; i++ {
+		_, err := db.Exec(fmt.Sprintf("CREATE TABLE `%s` (id INT, name VARCHAR(255))", randomString(10)))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// randomString generates a random string of a length n using rand package.
 func randomString(n int) string {
 	if n <= 0 {
 		return ""
 	}
 
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$@-"
+
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = byte(65 + i)
+		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+
 }
 
 func Test_randomString(t *testing.T) {
@@ -191,4 +206,46 @@ func Test_randomString(t *testing.T) {
 
 	s = randomString(100)
 	assert.Equal(t, 100, len(s))
+}
+
+func TestMySQLController_Tables(t *testing.T) {
+	c := createTestController()
+	tables, err := c.Tables(testDB)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(tables))
+
+	err = c.CreateDatabase(testDB)
+	assert.NoError(t, err)
+
+	tables, err = c.Tables(testDB)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(tables))
+
+	err = c.CreateUser(testUser, testPassword)
+	assert.NoError(t, err)
+	defer c.DeleteUser(testUser)
+
+	err = c.GrantAll(testDB, testUser)
+	assert.NoError(t, err)
+
+	db, err := openMySQLWithDB(testUser, testPassword, testDB)
+	assert.NoError(t, err)
+	defer db.Close()
+
+	err = createTestTable(db)
+	assert.NoError(t, err)
+
+	tables, err = c.Tables(testDB)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(tables))
+
+	err = createTestTables(db, 1000)
+	assert.NoError(t, err)
+
+	tables, err = c.Tables(testDB)
+	assert.NoError(t, err)
+	assert.Equal(t, 1001, len(tables))
+
+	err = c.DeleteDatabase(testDB)
+	assert.NoError(t, err)
 }

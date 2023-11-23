@@ -19,6 +19,8 @@ type DBController interface {
 	DatabaseExists(dbName string) (bool, error)
 	// Size returns the size of the database in Bytes.
 	Size(dbName string) (int, error)
+	// Tables returns a list of tables in the database.
+	Tables(dbName string) ([]string, error)
 }
 
 var _ DBController = &MySQLController{}
@@ -145,6 +147,32 @@ func (c *MySQLController) Size(dbName string) (int, error) {
 	}
 
 	return *size, nil
+}
+
+// Tables returns a list of tables in the database.
+func (c *MySQLController) Tables(dbName string) ([]string, error) {
+	err := validateDBName(dbName)
+	if err != nil {
+		return nil, err
+	}
+
+	q := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", dbName)
+	rows, err := c.db.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var tables []string
+	for rows.Next() {
+		var table string
+		err = rows.Scan(&table)
+		if err != nil {
+			return nil, err
+		}
+		tables = append(tables, table)
+	}
+
+	return tables, nil
 }
 
 func filterBaseDatabases(dbs []string) []string {
