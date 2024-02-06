@@ -143,6 +143,7 @@ func TestMySQLController_UsersMaxConnHandling(t *testing.T) {
 	c := createTestController()
 	err := c.CreateUserWithMaxConn(testUser, testPassword, 1)
 	assert.NoError(t, err)
+	defer c.DeleteUser(testUser)
 
 	err = openMySQL(testUser, testPassword, "")
 	assert.NoError(t, err)

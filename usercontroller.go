@@ -33,7 +33,7 @@ func (c *MySQLController) CreateUser(username, password string) error {
 
 	_, err = c.db.Exec("CREATE USER `" + username + "` IDENTIFIED BY '" + password + "'")
 	if err != nil {
-		if err.Error() == "Error 1396: Operation CREATE USER failed for '"+username+"'@'%'" {
+		if strings.Contains(err.Error(), "Error 1396") {
 			return ErrUserExists
 		}
 	}
@@ -48,7 +48,7 @@ func (c *MySQLController) CreateUserWithMaxConn(username, password string, maxCo
 
 	_, err = c.db.Exec("CREATE USER `" + username + "` IDENTIFIED BY '" + password + "' WITH MAX_USER_CONNECTIONS " + fmt.Sprintf("%d", maxConn))
 	if err != nil {
-		if strings.Contains(err.Error(), "Operation CREATE USER failed for '"+username+"'@'%'") {
+		if strings.Contains(err.Error(), "Error 1396") {
 			return ErrUserExists
 		}
 	}
@@ -86,7 +86,7 @@ func (c *MySQLController) UpdateUserMaxConn(username string, maxConn int) error 
 
 	_, err = c.db.Exec("ALTER USER `" + username + "` WITH MAX_USER_CONNECTIONS " + fmt.Sprintf("%d", maxConn))
 	if err != nil {
-		if err.Error() == "Error 1396: Operation ALTER USER failed for '"+username+"'@'%'" {
+		if strings.Contains(err.Error(), "Error 1396") {
 			return ErrUserDoesNotExist
 		}
 	}
@@ -106,7 +106,7 @@ func (c *MySQLController) UpdateUserPassword(username, password string) error {
 
 	_, err = c.db.Exec("SET PASSWORD FOR `" + username + "` = '" + password + "'")
 	if err != nil {
-		if err.Error() == "Error 1133: Can't find any matching row in the user table" {
+		if strings.Contains(err.Error(), "Error 1133") {
 			return ErrUserDoesNotExist
 		}
 	}
@@ -122,7 +122,7 @@ func (c *MySQLController) DeleteUser(username string) error {
 
 	_, err = c.db.Exec(fmt.Sprintf("DROP USER `%s`", username))
 	if err != nil {
-		if err.Error() == "Error 1396: Operation DROP USER failed for '"+username+"'@'%'" {
+		if strings.Contains(err.Error(), "Error 1396") {
 			return ErrUserDoesNotExist
 		}
 	}
